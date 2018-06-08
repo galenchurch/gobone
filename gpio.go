@@ -14,7 +14,7 @@ type GPIO struct {
 	PUPD  string //
 }
 
-//GPIO Pins are passed in the form:
+//PinMap - GPIO Pins are passed in the form:
 // "1_12" := bank 1 pin 12
 //
 func PinMap(n string) (g sysfs_gpio, err error) {
@@ -44,20 +44,19 @@ func InitGPIO(name string) (g GPIO, err error) {
 	return g, err
 }
 
-//Sets GPIO Direction
+//SetDir - Sets GPIO Direction
 //val = { "in", "out"}
 func (g *GPIO) SetDir(val string) {
 	g.Dir = "out"
-	WriteAndClose(g.Sys.SysfsLOC+"/direction", val)
+	WriteAndClose(g.GetGPIOSysfs()+"/direction", val)
 }
 
-//SetVal ...
-//Sets GPIO value
+//SetVal - Sets GPIO value
 //val = { "1", "0"}
 //TODO: add varification of val
 func (g *GPIO) SetVal(val string) {
 	if g.Dir == "out" {
-		WriteAndClose(g.Sys.SysfsLOC+"/value", val)
+		WriteAndClose(g.GetGPIOSysfs()+"/value", val)
 	} else if g.Dir == "in" {
 		log.Printf("Error %s is configured an Input", g.Sys.Name)
 	} else {
@@ -65,8 +64,7 @@ func (g *GPIO) SetVal(val string) {
 	}
 }
 
-//ReadVal ...
-//Read GPIO value
+//ReadVal - Read GPIO value
 //val = { "1", "0"}
 //
 func (g *GPIO) ReadVal() (r []byte) {
@@ -75,17 +73,8 @@ func (g *GPIO) ReadVal() (r []byte) {
 	return r
 }
 
+//GetGPIOSysfs - returns complete abs path to gpio dir
+//
 func (g *GPIO) GetGPIOSysfs() string {
 	return gpioBase + g.Sys.SysfsLOC
 }
-
-// func LedOff(l string) {
-// 	fmt.Printf("LED %s off\n", l)
-// 	WriteAndClose(l+"/brightness", "0")
-
-// }
-// func LedOn(l string) {
-// 	fmt.Printf("LED %s on\n", l)
-// 	WriteAndClose(l+"/brightness", "1")
-
-// }
